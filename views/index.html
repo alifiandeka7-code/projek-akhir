@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tulibot - Jembatan Berkomunikasi</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MediaPipe for Gesture Recognition -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Glowing blur background blobs -->
+    <div class="glow-blob-1"></div>
+    
+    <!-- Stars Container -->
+    <div class="stars-container" id="stars-container"></div>
+    
+    <!-- Clouds Container -->
+    <div class="clouds-container" id="clouds-container"></div>
+    
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-ear-listen"></i>
+                <h1>Tulibot</h1>
+            </div>
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <!-- Nav items will be added dynamically -->
+            </nav>
+            <!-- Sidebar Copyright -->
+            <div class="sidebar-copyright">
+                <p>Copyright © 2026 Tulibot by Amikom. All rights reserved.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <h2>Tulibot adalah Jembatan Berkomunikasi</h2>
+                <div class="user-info" id="user-info"></div>
+            </header>
+
+            <!-- Login Page -->
+            <div id="login-page" class="page active">
+                <div class="glass-card auth-card">
+                    <h2>Masuk ke Tulibot</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-username">Username</label>
+                            <input type="text" id="login-username" required placeholder="Masukkan username">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" required placeholder="Masukkan password">
+                        </div>
+                        <button type="submit" class="action-btn primary">
+                            <i class="fas fa-sign-in-alt"></i> Masuk
+                        </button>
+                    </form>
+                    <p>Belum punya akun? <a href="#" id="show-register">Daftar Sekarang</a></p>
+                </div>
+            </div>
+
+            <!-- Register Page -->
+            <div id="register-page" class="page">
+                <div class="glass-card auth-card">
+                    <h2>Daftar di Tulibot</h2>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="register-username">Username</label>
+                            <input type="text" id="register-username" required placeholder="Masukkan username">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" required placeholder="Masukkan email">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-fullname">Nama Lengkap</label>
+                            <input type="text" id="register-fullname" placeholder="Masukkan nama lengkap">
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" required placeholder="Masukkan password">
+                        </div>
+                        <button type="submit" class="action-btn primary">
+                            <i class="fas fa-user-plus"></i> Daftar
+                        </button>
+                    </form>
+                    <p>Sudah punya akun? <a href="#" id="show-login">Masuk Sekarang</a></p>
+                </div>
+            </div>
+
+            <!-- Komunikasi Dua Arah -->
+            <div id="two-way" class="page">
+                <div class="page-header">
+                    <h3>Komunikasi Dua Arah</h3>
+                    <p>Solusi mudah untuk kita berkomunikasi</p>
+                </div>
+                
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <label><i class="fas fa-globe"></i> Pilih Bahasa:</label>
+                    <select id="language-select">
+                        <option value="id-ID">Bahasa Indonesia</option>
+                        <option value="jv-ID">Jawa</option>
+                        <option value="en-US">Inggris</option>
+                        <option value="su-ID">Sunda</option>
+                        <option value="ms-MY">Melayu</option>
+                        <option value="ar-SA">Arab</option>
+                        <option value="zh-CN">Mandarin</option>
+                        <option value="ja-JP">Jepang</option>
+                        <option value="ko-KR">Korea</option>
+                        <option value="es-ES">Spanyol</option>
+                    </select>
+                </div>
+
+                <!-- Fixed Split Screen (Vertical by default) -->
+                <div class="split-container" id="split-container">
+                    <div class="split-pane deaf-pane">
+                        <div class="pane-header">
+                            <i class="fas fa-user-deaf"></i>
+                            <h4>Text-to-Speech</h4>
+                        </div>
+                        <textarea id="deaf-input" placeholder="Ketik pesan Anda di sini..."></textarea>
+                        <button id="deaf-speak-btn" class="action-btn primary">
+                            <i class="fas fa-volume-up"></i> Bicarakan
+                        </button>
+                    </div>
+                    
+                    <div class="split-divider"></div>
+                    
+                    <div class="split-pane hearing-pane">
+                        <div class="pane-header">
+                            <i class="fas fa-user"></i>
+                            <h4>Speech-to-Text</h4>
+                        </div>
+                        <button id="hearing-listen-btn" class="action-btn primary">
+                            <i class="fas fa-microphone"></i> Mulai Mendengarkan
+                        </button>
+                        <div class="text-output" id="hearing-output"></div>
+                    </div>
+                </div>
+                
+                <button id="save-history-btn" class="action-btn secondary">
+                    <i class="fas fa-save"></i> Simpan ke Riwayat
+                </button>
+            </div>
+
+            <!-- AI Assistant -->
+            <div id="ai-assistant" class="page">
+                <div class="page-header">
+                    <h3>AI Assistant</h3>
+                    <p>Tanya apa saja tentang bahasa isyarat dan informasi umum pada AI Assistant</p>
+                </div>
+                <div class="glass-card chat-container">
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Tulis pesan Anda...">
+                        <button id="send-chat" class="action-btn primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modul Belajar -->
+            <div id="lessons" class="page">
+                <div class="page-header">
+                    <h3>Modul Belajar Bahasa Isyarat</h3>
+                    <p>Pelajari bahasa isyarat dengan mudah dan menyenangkan</p>
+                </div>
+                <div class="category-tabs">
+                    <button class="category-tab active" data-category="huruf">Huruf A-Z</button>
+                    <button class="category-tab" data-category="angka">Angka</button>
+                    <button class="category-tab" data-category="pembelajaran">Pembelajaran</button>
+                </div>
+                <div class="lessons-grid" id="lessons-grid"></div>
+            </div>
+
+            <!-- Kuis -->
+            <div id="quiz" class="page">
+                <div class="page-header">
+                    <h3>Kuis Bahasa Isyarat</h3>
+                    <p>Uji pengetahuan bahasa isyarat Anda (Skor Maksimal: 100)</p>
+                </div>
+                <div class="glass-card quiz-container">
+                    <div class="quiz-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="score-display">Skor: <span id="score">0</span> / 100</div>
+                    </div>
+                    <div id="quiz-question"></div>
+                    <div id="quiz-options"></div>
+                    <div class="quiz-buttons">
+                        <button id="prev-question" class="action-btn secondary" style="display: none;">
+                            <i class="fas fa-arrow-left"></i> Sebelumnya
+                        </button>
+                        <button id="next-question" class="action-btn primary">
+                            <i class="fas fa-arrow-right"></i> Selanjutnya
+                        </button>
+                        <button id="finish-quiz" class="action-btn primary" style="display: none;">
+                            <i class="fas fa-check"></i> Selesai
+                        </button>
+                    </div>
+                    <div id="quiz-result" style="display: none; text-align: center; padding: 30px;"></div>
+                </div>
+            </div>
+
+            <!-- Riwayat -->
+            <div id="history" class="page">
+                <div class="page-header">
+                    <h3>Riwayat</h3>
+                    <p>Riwayat percakapan dan kuis Anda</p>
+                </div>
+                
+                <div class="history-tabs">
+                    <button class="history-tab active" data-history="two-way">Komunikasi Dua Arah</button>
+                    <button class="history-tab" data-history="chat">AI Assistant</button>
+                    <button class="history-tab" data-history="quiz">Skor Kuis</button>
+                </div>
+                
+                <div class="glass-card history-container">
+                    <div id="history-list"></div>
+                </div>
+            </div>
+
+            <!-- Pengenal Gestur -->
+            <div id="gesture" class="page">
+                <div class="page-header">
+                    <h3>Pengenal Gestur Isyarat</h3>
+                    <p>Gunakan kamera untuk mengenali gestur bahasa isyarat (MediaPipe)</p>
+                </div>
+                <div class="glass-card gesture-container">
+                    <div class="camera-wrapper" id="camera-container">
+                        <video id="camera-feed" autoplay playsinline style="display: none;"></video>
+                        <canvas id="gesture-canvas" style="position: absolute; top: 0; left: 0; display: none;"></canvas>
+                        <div class="camera-placeholder" id="camera-placeholder">
+                            <i class="fas fa-video"></i>
+                            <p>Klik tombol di bawah untuk mengaktifkan kamera</p>
+                        </div>
+                    </div>
+                    <button id="start-camera-btn" class="action-btn primary">
+                        <i class="fas fa-camera"></i> Aktifkan Kamera
+                    </button>
+                    <div class="gesture-output">
+                        <h4>Hasil Pengenalan:</h4>
+                        <div id="gesture-text" class="gesture-result">Menunggu gestur...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kalimat Cepat -->
+            <div id="quick-phrases" class="page">
+                <div class="page-header">
+                    <h3>Kalimat Cepat</h3>
+                    <p>Klik untuk memutar kalimat yang sering dipakai</p>
+                </div>
+                <div class="phrase-categories">
+                    <button class="phrase-category-tab active" data-category="salam">
+                        <i class="fas fa-hand-wave"></i> Salam
+                    </button>
+                    <button class="phrase-category-tab" data-category="komunikasi">
+                        <i class="fas fa-comments"></i> Komunikasi
+                    </button>
+                    <button class="phrase-category-tab" data-category="bantuan">
+                        <i class="fas fa-hands-helping"></i> Bantuan
+                    </button>
+                    <button class="phrase-category-tab" data-category="penting">
+                        <i class="fas fa-exclamation-triangle"></i> Situasi Penting
+                    </button>
+                </div>
+                <div class="phrases-grid" id="phrases-grid"></div>
+            </div>
+
+            <!-- Donasi -->
+            <div id="donation" class="page">
+                <div class="page-header">
+                    <h3>Donasi</h3>
+                    <p>Dukung pengembangan Tulibot untuk komunitas tunarungu</p>
+                </div>
+                <div class="glass-card donation-container">
+                    <div class="donation-info">
+                        <h4><i class="fas fa-heart"></i> Informasi Donasi</h4>
+                        <div class="donation-item">
+                            <p><strong>Nama Bank:</strong> Seabank</p>
+                            <div class="copy-section">
+                                <span>9016-9104-6548</span>
+                                <button class="copy-btn" data-text="9016-9104-6548">
+                                    <i class="fas fa-copy"></i> Salin
+                                </button>
+                            </div>
+                        </div>
+                        <div class="donation-item">
+                            <p><strong>Nama Pemilik Rekening:</strong>Tulibot Indonesia</p>
+                            <div class="copy-section">
+                                <span>Yayasan Tulibot</span>
+                                <button class="copy-btn" data-text="Yayasan Tulibot">
+                                    <i class="fas fa-copy"></i> Salin
+                                </button>
+                            </div>
+                        </div>
+                        <div class="donation-item">
+                            <p><strong>Deskripsi:</strong></p>
+                            <p>Donasi Anda membantu pengembangan fitur baru dan operasional server Tulibot untuk komunitas tunarungu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profil -->
+            <div id="profile" class="page">
+                <div class="page-header">
+                    <h3>Profil & Dashboard</h3>
+                    <p>Informasi akun dan statistik Anda</p>
+                </div>
+                <div class="profile-grid">
+                    <div class="glass-card profile-card">
+                        <h4><i class="fas fa-user"></i> Informasi Akun</h4>
+                        <div id="profile-info"></div>
+                    </div>
+                    <div class="glass-card stats-card">
+                        <h4><i class="fas fa-chart-bar"></i> Statistik Belajar</h4>
+                        <div id="profile-stats"></div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="action-btn secondary logout-full">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
